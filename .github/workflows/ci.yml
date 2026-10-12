@@ -18,6 +18,8 @@ jobs:
         with:
           go-version-file: go.mod
       - run: go generate ./schema
+      # The version matches the gomod2nix input in flake.lock.
+      - run: go run github.com/nix-community/gomod2nix@1201ddd1279c35497754f016ef33d5e060f3da8d generate
       - run: git diff --exit-code
 
   backend:
