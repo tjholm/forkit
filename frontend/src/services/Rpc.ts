@@ -40,6 +40,7 @@ export class Rpc extends Context.Service<
     readonly rowOfRef: (id: RepoId, ref: RefId) => Effect.Effect<number, RpcFailure>
     readonly commitDetail: (id: RepoId, oid: Oid) => Effect.Effect<CommitDetail, RpcFailure>
     readonly diff: (id: RepoId, request: DiffRequest) => Effect.Effect<FileDiff, RpcFailure>
+    readonly fetch: (id: RepoId) => Effect.Effect<void, RpcFailure>
     readonly setPreference: (path: string, value: unknown) => Effect.Effect<void, RpcFailure>
     readonly resetPreference: (path: string) => Effect.Effect<void, RpcFailure>
     readonly setActiveRepo: (id: RepoId) => Effect.Effect<void, RpcFailure>
@@ -50,6 +51,8 @@ export class Rpc extends Context.Service<
     /** An empty newBranch checks out base itself; an empty path lets the backend choose. */
     readonly createWorktree: (repo: RepoId, base: RefId, newBranch: string, path: string) => Effect.Effect<Worktree, RpcFailure>
     readonly removeWorktree: (worktree: WorktreeId, force: boolean) => Effect.Effect<void, RpcFailure>
+    readonly pull: (worktree: WorktreeId) => Effect.Effect<void, RpcFailure>
+    readonly push: (worktree: WorktreeId) => Effect.Effect<void, RpcFailure>
     /** Resolves to None when the user cancels the folder picker. */
     readonly chooseWorktreeParent: () => Effect.Effect<Option.Option<string>, RpcFailure>
   }
@@ -80,6 +83,7 @@ export class Rpc extends Context.Service<
         "repo.id": id,
         "diff.kind": request.kind,
       }),
+    fetch: (id) => invoke("Repos.Fetch", Schema.Void, (meta) => Repos.Fetch(meta, id), { "repo.id": id }),
     setPreference: (path, value) =>
       invoke("Preferences.Set", Schema.Void, (meta) => Preferences.Set(meta, path, value), { "preference.path": path }),
     resetPreference: (path) =>
@@ -100,6 +104,8 @@ export class Rpc extends Context.Service<
       invoke("Worktrees.Create", Worktree, (meta) => Worktrees.Create(meta, repo, base, newBranch, path), { "repo.id": repo }),
     removeWorktree: (worktree, force) =>
       invoke("Worktrees.Remove", Schema.Void, (meta) => Worktrees.Remove(meta, worktree, force), { "worktree.id": worktree }),
+    pull: (worktree) => invoke("Worktrees.Pull", Schema.Void, (meta) => Worktrees.Pull(meta, worktree), { "worktree.id": worktree }),
+    push: (worktree) => invoke("Worktrees.Push", Schema.Void, (meta) => Worktrees.Push(meta, worktree), { "worktree.id": worktree }),
     chooseWorktreeParent: () =>
       invoke("Worktrees.ChooseParentDirectory", Schema.String, (meta) => Worktrees.ChooseParentDirectory(meta)).pipe(
         Effect.map((path) => (path === "" ? Option.none() : Option.some(path))),

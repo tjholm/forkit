@@ -124,7 +124,7 @@ export const FileStatus = Schema.Struct({
 })
 export type FileStatus = typeof FileStatus.Type
 
-export const OperationKind = Schema.Literals(["checkout", "createWorktree", "removeWorktree"])
+export const OperationKind = Schema.Literals(["checkout", "createWorktree", "removeWorktree", "fetch", "pull", "push"])
 export type OperationKind = typeof OperationKind.Type
 
 export const OperationState = Schema.Literals(["queued", "running", "done", "failed", "cancelled"])
@@ -137,7 +137,7 @@ export const OperationProgress = Schema.Struct({
 })
 export type OperationProgress = typeof OperationProgress.Type
 
-export const ErrorCode = Schema.Literals(["NotARepo", "RepoNotOpen", "RefNotFound", "WorktreeNotFound", "DirtyWorktree", "BranchCheckedOutElsewhere", "OperationInProgress", "IndexLocked", "AuthFailed", "GitNotFound", "GitTooOld", "GitFailed", "InvalidArgument", "Cancelled", "Internal"])
+export const ErrorCode = Schema.Literals(["NotARepo", "RepoNotOpen", "RefNotFound", "WorktreeNotFound", "DirtyWorktree", "BranchCheckedOutElsewhere", "OperationInProgress", "IndexLocked", "AuthFailed", "NoUpstream", "NotFastForward", "GitNotFound", "GitTooOld", "GitFailed", "InvalidArgument", "Cancelled", "Internal"])
 export type ErrorCode = typeof ErrorCode.Type
 
 export const RpcError = Schema.Struct({

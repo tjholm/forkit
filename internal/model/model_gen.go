@@ -161,6 +161,9 @@ const (
 	OperationKindCheckout       OperationKind = "checkout"
 	OperationKindCreateWorktree OperationKind = "createWorktree"
 	OperationKindRemoveWorktree OperationKind = "removeWorktree"
+	OperationKindFetch          OperationKind = "fetch"
+	OperationKindPull           OperationKind = "pull"
+	OperationKindPush           OperationKind = "push"
 )
 
 type OperationState string
@@ -504,6 +507,8 @@ const (
 	ErrorCodeOperationInProgress       ErrorCode = "OperationInProgress"
 	ErrorCodeIndexLocked               ErrorCode = "IndexLocked"
 	ErrorCodeAuthFailed                ErrorCode = "AuthFailed"
+	ErrorCodeNoUpstream                ErrorCode = "NoUpstream"
+	ErrorCodeNotFastForward            ErrorCode = "NotFastForward"
 	ErrorCodeGitNotFound               ErrorCode = "GitNotFound"
 	ErrorCodeGitTooOld                 ErrorCode = "GitTooOld"
 	ErrorCodeGitFailed                 ErrorCode = "GitFailed"

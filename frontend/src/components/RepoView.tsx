@@ -3,6 +3,7 @@ import { Option } from "effect"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toggleDetails, useDetailsShown } from "@/app/detailsShown"
 import { useRun } from "@/app/hooks"
+import { notify } from "@/app/notifications"
 import {
   graphViewsCollection,
   operationsCollection,
@@ -141,6 +142,16 @@ export const RepoView = ({ repo, openRepo, preferences, active }: RepoViewProps)
   }
 
   const headBranch = headRef ? refsById.get(headRef) : undefined
+  const runningKinds = new Set(running.map((op) => op.kind))
+  const fetch = () => void run(Commands.use((commands) => commands.fetch(id)))
+  const pull = (worktree: Worktree, branch: Ref) =>
+    void run(Commands.use((commands) => commands.pull(worktree.id))).then(
+      (done) => Option.isSome(done) && notify({ tone: "info", message: `Pulled ${branch.shortName}` }),
+    )
+  const push = (worktree: Worktree, branch: Ref) =>
+    void run(Commands.use((commands) => commands.push(worktree.id))).then(
+      (done) => Option.isSome(done) && notify({ tone: "info", message: `Pushed ${branch.shortName}` }),
+    )
   const emphasizedOther = emphasized && emphasized !== headRef ? refsById.get(emphasized) : undefined
   const reveal = useMemo(() => [headRef, emphasized].filter((ref): ref is NonNullable<typeof ref> => ref !== undefined), [headRef, emphasized])
 
@@ -174,7 +185,13 @@ export const RepoView = ({ repo, openRepo, preferences, active }: RepoViewProps)
         emphasizedOther={emphasizedOther}
         onClearEmphasis={() => headBranch && emphasize(headBranch)}
         view={view}
-        checkingOut={running.some((op) => op.kind === "checkout")}
+        checkingOut={runningKinds.has("checkout")}
+        remoteSync={{
+          running: runningKinds,
+          onFetch: remotes.length > 0 ? fetch : undefined,
+          onPull: activeWorktree && headBranch?.upstreamRefId ? () => pull(activeWorktree, headBranch) : undefined,
+          onPush: activeWorktree && headBranch && remotes.length > 0 ? () => push(activeWorktree, headBranch) : undefined,
+        }}
         detailsShown={showDetails}
         onToggleDetails={toggleDetails}
       />
@@ -234,4 +251,7 @@ const operationLabels: Record<OperationKind, string> = {
   checkout: "Checking out",
   createWorktree: "Creating worktree",
   removeWorktree: "Removing worktree",
+  fetch: "Fetching",
+  pull: "Pulling",
+  push: "Pushing",
 }

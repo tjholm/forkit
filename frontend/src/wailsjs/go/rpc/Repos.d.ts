@@ -10,6 +10,8 @@ export function CommitDetail(arg1:model.CallMeta,arg2:model.RepoID,arg3:model.OI
 
 export function Diff(arg1:model.CallMeta,arg2:model.RepoID,arg3:model.DiffRequest):Promise<model.FileDiff>;
 
+export function Fetch(arg1:model.CallMeta,arg2:model.RepoID):Promise<void>;
+
 export function GraphWindow(arg1:model.CallMeta,arg2:model.RepoID,arg3:number,arg4:number,arg5:model.RefID):Promise<model.GraphWindow>;
 
 export function Open(arg1:model.CallMeta,arg2:string):Promise<model.Repo>;

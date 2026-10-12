@@ -52,6 +52,8 @@ func ToRPC(err error) model.RpcError {
 		return model.RpcError{Code: model.ErrorCodeNotARepo, Message: "not a git repository"}
 	case gitexec.IsIndexLocked(err):
 		return model.RpcError{Code: model.ErrorCodeIndexLocked, Message: "another git process is using this repository (index.lock exists)"}
+	case gitexec.IsAuthFailed(err) && errors.As(err, &gitErr):
+		return model.RpcError{Code: model.ErrorCodeAuthFailed, Message: gitErr.Stderr}
 	case errors.As(err, &gitErr):
 		return model.RpcError{Code: model.ErrorCodeGitFailed, Message: gitErr.Stderr}
 	}

@@ -42,6 +42,24 @@ func IsWorktreeDirty(err error) bool {
 	return stderrContains(err, "contains modified or untracked files")
 }
 
+// IsAuthFailed reports whether git could not authenticate with a remote.
+// Forkit disables terminal prompts, so a missing credential helper or SSH
+// key fails here instead of waiting for input.
+func IsAuthFailed(err error) bool {
+	return stderrContains(err, "Authentication failed") ||
+		stderrContains(err, "could not read Username") ||
+		stderrContains(err, "could not read Password") ||
+		stderrContains(err, "Permission denied (publickey") ||
+		stderrContains(err, "Host key verification failed")
+}
+
+// IsNotFastForward reports whether a pull could not fast-forward or a push
+// was rejected because the remote has commits the local branch lacks.
+func IsNotFastForward(err error) bool {
+	return stderrContains(err, "Not possible to fast-forward") ||
+		stderrContains(err, "Updates were rejected")
+}
+
 func stderrContains(err error, text string) bool {
 	var gitErr *Error
 	return errors.As(err, &gitErr) && strings.Contains(gitErr.Stderr, text)

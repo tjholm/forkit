@@ -1,8 +1,8 @@
-import { Check, LoaderCircle, PanelRight, Tag, X } from "lucide-react"
+import { ArrowDownToLine, ArrowUpFromLine, Check, LoaderCircle, PanelRight, RefreshCw, Tag, X, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { baseName } from "@/lib/format"
 import { changeCount, headLabel } from "@/lib/worktree"
-import type { GraphView, Ref, Worktree, WorktreeOperation } from "@/model/model.gen"
+import type { GraphView, OperationKind, Ref, Worktree, WorktreeOperation } from "@/model/model.gen"
 import { WorktreeIcon } from "./WorktreeIcon"
 
 interface ViewHeaderProps {
@@ -16,15 +16,35 @@ interface ViewHeaderProps {
   readonly view: GraphView | undefined
   /** A checkout is running, so the branch is about to change. */
   readonly checkingOut: boolean
+  readonly remoteSync: RemoteSync
   readonly detailsShown: boolean
   readonly onToggleDetails: () => void
+}
+
+/** Fetch, pull and push; an action is undefined when it cannot run here. */
+interface RemoteSync {
+  readonly running: ReadonlySet<OperationKind>
+  readonly onFetch: (() => void) | undefined
+  readonly onPull: (() => void) | undefined
+  readonly onPush: (() => void) | undefined
 }
 
 /**
  * The panel's second header level: which worktree and branch the view is
  * about, and what the graph is showing.
  */
-export const ViewHeader = ({ worktree, refsById, headEmphasized, emphasizedOther, onClearEmphasis, view, checkingOut, detailsShown, onToggleDetails }: ViewHeaderProps) => {
+export const ViewHeader = ({
+  worktree,
+  refsById,
+  headEmphasized,
+  emphasizedOther,
+  onClearEmphasis,
+  view,
+  checkingOut,
+  remoteSync,
+  detailsShown,
+  onToggleDetails,
+}: ViewHeaderProps) => {
   const changes = worktree ? changeCount(worktree) : 0
   const head = worktree?.head.refId ? refsById.get(worktree.head.refId) : undefined
   return (
@@ -81,6 +101,11 @@ export const ViewHeader = ({ worktree, refsById, headEmphasized, emphasizedOther
             {view.complete ? "" : "…"}
           </span>
         )}
+        <div className="flex items-center">
+          <SyncButton label="Fetch" icon={RefreshCw} running={remoteSync.running.has("fetch")} onClick={remoteSync.onFetch} />
+          <SyncButton label="Pull" icon={ArrowDownToLine} running={remoteSync.running.has("pull")} onClick={remoteSync.onPull} />
+          <SyncButton label="Push" icon={ArrowUpFromLine} running={remoteSync.running.has("push")} onClick={remoteSync.onPush} />
+        </div>
         <button
           aria-label="Details"
           aria-pressed={detailsShown}
@@ -97,6 +122,26 @@ export const ViewHeader = ({ worktree, refsById, headEmphasized, emphasizedOther
     </div>
   )
 }
+
+interface SyncButtonProps {
+  readonly label: string
+  readonly icon: LucideIcon
+  readonly running: boolean
+  readonly onClick: (() => void) | undefined
+}
+
+const SyncButton = ({ label, icon: Icon, running, onClick }: SyncButtonProps) => (
+  <button
+    aria-label={label}
+    aria-busy={running}
+    title={label}
+    disabled={!onClick || running}
+    onClick={onClick}
+    className="flex size-7 items-center justify-center rounded-md enabled:hover:bg-foreground/[0.05] enabled:hover:text-foreground disabled:opacity-40"
+  >
+    {running ? <LoaderCircle className="size-4 animate-spin" /> : <Icon className="size-4" />}
+  </button>
+)
 
 const chip = "flex h-[22px] min-w-0 items-center gap-1 rounded-md px-1.5 text-xs"
 /** The accent marks the emphasized ref, as its badges do in the list. */

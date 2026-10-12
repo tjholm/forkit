@@ -8,4 +8,8 @@ export function ChooseParentDirectory(arg1:model.CallMeta):Promise<string>;
 
 export function Create(arg1:model.CallMeta,arg2:model.RepoID,arg3:model.RefID,arg4:string,arg5:string):Promise<model.Worktree>;
 
+export function Pull(arg1:model.CallMeta,arg2:model.WorktreeID):Promise<void>;
+
+export function Push(arg1:model.CallMeta,arg2:model.WorktreeID):Promise<void>;
+
 export function Remove(arg1:model.CallMeta,arg2:model.WorktreeID,arg3:boolean):Promise<void>;

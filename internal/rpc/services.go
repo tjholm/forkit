@@ -136,6 +136,13 @@ func (x *Repos) Diff(meta model.CallMeta, id model.RepoID, req model.DiffRequest
 	}, attribute.String("repo.id", string(id)), attribute.String("diff.kind", string(req.Kind)))
 }
 
+// Fetch updates every remote of a repository.
+func (x *Repos) Fetch(meta model.CallMeta, id model.RepoID) error {
+	return callNoResult(x.s, meta, "Repos.Fetch", func(ctx context.Context) error {
+		return x.s.deps.Workspace.Fetch(ctx, id)
+	}, attribute.String("repo.id", string(id)))
+}
+
 var oidPattern = regexp.MustCompile(`^(?:[0-9a-f]{40}|[0-9a-f]{64})$`)
 
 // isOID reports whether oid is a full SHA-1 or SHA-256 hash, so it can be
@@ -245,6 +252,20 @@ func (x *Worktrees) Create(meta model.CallMeta, repoID model.RepoID, base model.
 func (x *Worktrees) Remove(meta model.CallMeta, worktreeID model.WorktreeID, force bool) error {
 	return callNoResult(x.s, meta, "Worktrees.Remove", func(ctx context.Context) error {
 		return x.s.deps.Workspace.RemoveWorktree(ctx, worktreeID, force)
+	}, attribute.String("worktree.id", string(worktreeID)))
+}
+
+// Pull fast-forwards a worktree's branch to its upstream.
+func (x *Worktrees) Pull(meta model.CallMeta, worktreeID model.WorktreeID) error {
+	return callNoResult(x.s, meta, "Worktrees.Pull", func(ctx context.Context) error {
+		return x.s.deps.Workspace.Pull(ctx, worktreeID)
+	}, attribute.String("worktree.id", string(worktreeID)))
+}
+
+// Push sends a worktree's branch to its upstream, creating one if needed.
+func (x *Worktrees) Push(meta model.CallMeta, worktreeID model.WorktreeID) error {
+	return callNoResult(x.s, meta, "Worktrees.Push", func(ctx context.Context) error {
+		return x.s.deps.Workspace.Push(ctx, worktreeID)
 	}, attribute.String("worktree.id", string(worktreeID)))
 }
 

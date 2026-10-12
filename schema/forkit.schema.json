@@ -117,7 +117,7 @@
       }
     },
 
-    "OperationKind": { "enum": ["checkout", "createWorktree", "removeWorktree"] },
+    "OperationKind": { "enum": ["checkout", "createWorktree", "removeWorktree", "fetch", "pull", "push"] },
     "OperationState": { "enum": ["queued", "running", "done", "failed", "cancelled"] },
     "OperationProgress": {
       "type": "object",
@@ -408,6 +408,8 @@
         "OperationInProgress",
         "IndexLocked",
         "AuthFailed",
+        "NoUpstream",
+        "NotFastForward",
         "GitNotFound",
         "GitTooOld",
         "GitFailed",
